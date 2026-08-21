@@ -635,6 +635,3 @@ See [LICENSE](LICENSE) for details.
 Built with React, TypeScript, FastAPI, AI agents, and a focus on making autonomous software engineering observable and trustworthy.
 
 **Think. Plan. Build. Verify. Recover. Ship. 🚀**
-
-```
-```
