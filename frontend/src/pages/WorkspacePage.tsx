@@ -41,6 +41,10 @@ import GuidedDemo from '../components/GuidedDemo';
 import DemoProgress from '../components/DemoProgress';
 import EngineeringHealthExplanation from '../components/EngineeringHealthExplanation';
 import AboutDevPilot from '../components/AboutDevPilot';
+import PersonalitySelector from '../components/PersonalitySelector';
+import DeveloperMemoryPanel from '../components/DeveloperMemoryPanel';
+import ChatPanel from '../components/ChatPanel';
+import ContextIndicator from '../components/ContextIndicator';
 import type { Project, Task, CodeChange, TestRun, AgentRun, WorkflowPhase, EventStreamEntry, AgentDecision } from '../types';
 import {
   getProject,
@@ -51,6 +55,7 @@ import {
   debugProject,
   generateReport,
   getTask,
+  createSession,
 } from '../services/api';
 import { formatDate } from '../utils/format';
 import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
@@ -85,7 +90,6 @@ export default function WorkspacePage() {
   const [eventStream, setEventStream] = useState<EventStreamEntry[]>([]);
   const [workflowPhase, setWorkflowPhase] = useState<WorkflowPhase>('think');
   const [completedPhases, setCompletedPhases] = useState<WorkflowPhase[]>([]);
-  const [rightPanel, setRightPanel] = useState<'agents' | 'health' | 'impact'>('agents');
   const [isDemoMode, setIsDemoMode] = useState(false);
 
   const [decisions, setDecisions] = useState<AgentDecision[]>([]);
@@ -95,6 +99,20 @@ export default function WorkspacePage() {
   const [showHealthExplanation, setShowHealthExplanation] = useState(false);
   const [showAboutDevPilot, setShowAboutDevPilot] = useState(false);
   const [copiedSummary, setCopiedSummary] = useState(false);
+
+  const [selectedPersonality, setSelectedPersonality] = useState('senior_engineer');
+  const [rightTab, setRightTab] = useState<'agents' | 'chat' | 'memory' | 'health' | 'impact'>('chat');
+  const [currentCode, setCurrentCode] = useState('');
+  const [currentSessionId, setCurrentSessionId] = useState('');
+  const [contextUsed, setContextUsed] = useState({
+    current_code: false,
+    repo_context: false,
+    language: null as string | null,
+    personality: 'Senior Engineer',
+    developer_memory: 0,
+    previous_session: false,
+    memory_categories: [] as string[],
+  });
 
   const agents: AgentRun[] = [
     { id: 'analyzer', name: 'Repository Analyzer', icon: 'search', status: completedPhases.includes('think') ? 'completed' : workflowPhase === 'think' ? 'active' : 'queued' },
@@ -131,6 +149,16 @@ export default function WorkspacePage() {
     loadProject();
   }, [loadProject]);
 
+  useEffect(() => {
+    if (rightTab === 'chat' && !currentSessionId) {
+      createSession({
+        title: `Chat - ${selectedPersonality}`,
+        personality_id: selectedPersonality,
+        language: analysisResult?.languages ? Object.keys(analysisResult.languages)[0] : '',
+      }).then(session => setCurrentSessionId(session.id)).catch(() => {});
+    }
+  }, [rightTab, currentSessionId]);
+
   function resetDemoState() {
     setIsDemoMode(false);
     setAnalysisResult(null);
@@ -144,7 +172,9 @@ export default function WorkspacePage() {
     setWorkflowPhase('think');
     setEngineeringTask('');
     setDecisions([]);
-    setRightPanel('agents');
+    setRightTab('chat');
+    setCurrentCode('');
+    setCurrentSessionId('');
   }
 
   function loadDemoData() {
@@ -168,7 +198,7 @@ export default function WorkspacePage() {
     setCompletedPhases(['think', 'plan', 'act', 'verify', 'recover', 'ship']);
     setWorkflowPhase('ship');
     setEngineeringTask('Add JWT authentication to the application');
-    setRightPanel('health');
+    setRightTab('health');
   }
 
   function handleResetDemo() {
@@ -367,7 +397,7 @@ export default function WorkspacePage() {
       return;
     }
     if (command === 'open-health') {
-      setRightPanel('health');
+      setRightTab('health');
       return;
     }
     if (command === 'open-about') {
@@ -472,6 +502,11 @@ export default function WorkspacePage() {
             </div>
 
             <div className="flex items-center gap-2">
+              <PersonalitySelector
+                selected={selectedPersonality}
+                onSelect={setSelectedPersonality}
+                compact
+              />
               <Button
                 variant="ghost"
                 size="sm"
@@ -855,21 +890,23 @@ export default function WorkspacePage() {
             </div>
           </div>
 
-          {/* Right sidebar - Agents / Health / Impact */}
-          <div className="w-[300px] border-l border-surface-800/50 bg-surface-950 flex flex-col">
+          {/* Right sidebar - Chat / Agents / Memory / Health / Impact */}
+          <div className="w-[320px] border-l border-surface-800/50 bg-surface-950 flex flex-col">
             {/* Tab bar */}
-            <div className="flex border-b border-surface-800/50">
+            <div className="flex border-b border-surface-800/50 overflow-x-auto">
               {[
+                { key: 'chat' as const, label: 'Assistant' },
                 { key: 'agents' as const, label: 'Agents' },
+                { key: 'memory' as const, label: 'Memory' },
                 { key: 'health' as const, label: 'Health' },
                 { key: 'impact' as const, label: 'Impact' },
               ].map(({ key, label }) => (
                 <button
                   key={key}
-                  onClick={() => setRightPanel(key)}
+                  onClick={() => setRightTab(key)}
                   className={clsx(
-                    'flex-1 py-2.5 text-xs font-semibold border-b-2 transition-colors',
-                    rightPanel === key
+                    'flex-1 py-2.5 text-xs font-semibold border-b-2 transition-colors whitespace-nowrap',
+                    rightTab === key
                       ? 'border-brand-500 text-brand-400'
                       : 'border-transparent text-surface-500 hover:text-surface-300'
                   )}
@@ -879,8 +916,34 @@ export default function WorkspacePage() {
               ))}
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {rightPanel === 'agents' && (
+            <div className="flex-1 overflow-y-auto">
+              {rightTab === 'chat' && (
+                <div className="h-full flex flex-col">
+                  <div className="px-3 py-2 border-b border-surface-800/50">
+                    <PersonalitySelector
+                      selected={selectedPersonality}
+                      onSelect={setSelectedPersonality}
+                      compact
+                    />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <ChatPanel
+                      personalityId={selectedPersonality}
+                      language={analysisResult?.languages ? Object.keys(analysisResult.languages)[0] : undefined}
+                      repoContext={analysisResult?.summary}
+                      currentFile={codeChanges.length > 0 ? codeChanges[0].file_path : undefined}
+                      currentCode={currentCode || (codeChanges.length > 0 ? codeChanges[0].content : undefined)}
+                      sessionId={currentSessionId}
+                      onContextUpdate={setContextUsed}
+                    />
+                  </div>
+                  <div className="px-3 py-2 border-t border-surface-800/50">
+                    <ContextIndicator contextUsed={contextUsed} />
+                  </div>
+                </div>
+              )}
+
+              {rightTab === 'agents' && (
                 <>
                   <AgentRunPanel agents={agents} />
 
@@ -922,7 +985,13 @@ export default function WorkspacePage() {
                 </>
               )}
 
-              {rightPanel === 'health' && (
+              {rightTab === 'memory' && (
+                <div className="p-4">
+                  <DeveloperMemoryPanel />
+                </div>
+              )}
+
+              {rightTab === 'health' && (
                 <>
                   {reportResult?.score ? (
                     <>
@@ -964,7 +1033,7 @@ export default function WorkspacePage() {
                 </>
               )}
 
-              {rightPanel === 'impact' && (
+              {rightTab === 'impact' && (
                 <>
                   <EngineeringImpactCard
                     filesCreated={codeChanges.filter((c) => c.operation === 'create').length}

@@ -211,3 +211,72 @@ export interface DemoProgress {
   steps: string[];
   labels: string[];
 }
+
+export interface Personality {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+  system_instructions: string;
+  verbosity: string;
+  reveal_solutions: boolean;
+  teaching_style: string;
+}
+
+export interface DeveloperMemory {
+  id: string;
+  category: 'preference' | 'recurring_issue' | 'technology' | 'pattern';
+  content: string;
+  source: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CodingSession {
+  id: string;
+  title: string;
+  personality_id: string;
+  language: string;
+  summary: string;
+  messages_json: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChatMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp?: string;
+  action?: string;
+  personality_id?: string;
+}
+
+export interface CodingRequest {
+  action: string;
+  code?: string;
+  question?: string;
+  personality_id?: string;
+  language?: string;
+  repo_context?: string;
+  current_file?: string;
+  session_id?: string;
+}
+
+export interface CodingResponse {
+  response: string;
+  personality_id: string;
+  action: string;
+  context_used: {
+    current_code: boolean;
+    repo_context: boolean;
+    language: string | null;
+    personality: string;
+    personality_id?: string;
+    developer_memory: number;
+    previous_session: boolean;
+    memory_categories?: string[];
+    relevant_memory_ids?: string[];
+    session_message_count?: number;
+  };
+  session_id: string;
+}

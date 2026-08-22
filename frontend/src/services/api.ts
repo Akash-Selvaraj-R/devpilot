@@ -1,4 +1,4 @@
-import type { Project, Task, AgentEvent, CodeChange, TestRun, Report, RunRecord, EngineeringHealth } from '../types';
+import type { Project, Task, AgentEvent, CodeChange, TestRun, Report, RunRecord, EngineeringHealth, Personality, DeveloperMemory, CodingSession, CodingRequest, CodingResponse } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
@@ -140,4 +140,57 @@ export function getTaskEvents(taskId: string): EventSource {
 
 export async function getTaskEventsHistory(taskId: string): Promise<AgentEvent[]> {
   return request<AgentEvent[]>(`/tasks/${taskId}/events`);
+}
+
+export async function getPersonalities(): Promise<Personality[]> {
+  return request<Personality[]>('/personalities');
+}
+
+export async function getPersonality(id: string): Promise<Personality> {
+  return request<Personality>(`/personalities/${id}`);
+}
+
+export async function getMemory(): Promise<DeveloperMemory[]> {
+  return request<DeveloperMemory[]>('/memory');
+}
+
+export async function createMemory(data: { category: string; content: string; source?: string }): Promise<DeveloperMemory> {
+  return request<DeveloperMemory>('/memory', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteMemory(id: string): Promise<void> {
+  await request(`/memory/${id}`, { method: 'DELETE' });
+}
+
+export async function clearAllMemory(): Promise<void> {
+  await request('/memory', { method: 'DELETE' });
+}
+
+export async function getSessions(): Promise<CodingSession[]> {
+  return request<CodingSession[]>('/sessions');
+}
+
+export async function createSession(data: { title?: string; personality_id?: string; language?: string }): Promise<CodingSession> {
+  return request<CodingSession>('/sessions', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function getSession(id: string): Promise<CodingSession> {
+  return request<CodingSession>(`/sessions/${id}`);
+}
+
+export async function deleteSession(id: string): Promise<void> {
+  await request(`/sessions/${id}`, { method: 'DELETE' });
+}
+
+export async function sendCodingRequest(data: CodingRequest): Promise<CodingResponse> {
+  return request<CodingResponse>('/ai/coding', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
 }

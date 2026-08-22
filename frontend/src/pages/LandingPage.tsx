@@ -35,27 +35,27 @@ const workflowSteps = [
 const features = [
   {
     icon: Brain,
-    title: 'AI-Powered Analysis',
+    title: 'Knows Your Code',
     description:
-      'Understands your codebase, identifies patterns, and suggests the best approach for any engineering task.',
+      'Understands current files and repository context to provide relevant, informed assistance.',
   },
   {
     icon: Code,
-    title: 'Intelligent Code Generation',
+    title: 'Adapts to You',
     description:
-      'Writes production-quality code that follows your project conventions and best practices.',
+      'Choose how your AI coding companion communicates — from patient mentor to strict reviewer.',
   },
   {
     icon: TestTube,
-    title: 'Automated Testing',
+    title: 'Remembers Your Patterns',
     description:
-      'Generates and runs comprehensive tests to ensure code reliability and correctness.',
+      'Keeps useful coding preferences and recurring issues to personalize future assistance.',
   },
   {
     icon: Shield,
-    title: 'Security & Quality Scoring',
+    title: 'Actually Builds',
     description:
-      'Real-time engineering metrics covering code quality, architecture, testing, and security.',
+      'Analyze, plan, implement, test, debug, and evaluate — the full engineering workflow.',
   },
 ];
 
@@ -80,7 +80,7 @@ const safetyFeatures = [
 ];
 
 const chatbotSteps = ['Prompt', 'Response', 'Developer decides what happens next'];
-const devpilotSteps = ['Task', 'Understand', 'Plan', 'Implement', 'Test', 'Debug', 'Verify', 'Evaluate'];
+const devpilotSteps = ['Code Context', 'Personality', 'Developer Memory', 'Plan', 'Implement', 'Test', 'Debug', 'Ship'];
 
 export default function LandingPage() {
   return (
@@ -95,18 +95,17 @@ export default function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-sm font-medium mb-8 animate-fade-in">
                 <Sparkles className="w-4 h-4" />
-                AI Software Engineering Workspace
+                AI Coding Buddy with Personality
               </div>
 
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white mb-6 animate-slide-up text-balance">
-                Your AI Software Engineer.
+                Your AI Coding Companion.
                 <br />
-                <span className="gradient-text">From Task to Tested Code.</span>
+                <span className="gradient-text">Understands Your Code. Learns Your Style.</span>
               </h1>
 
               <p className="text-lg text-surface-400 mb-10 max-w-xl animate-slide-up text-balance">
-                DevPilot analyzes your repository, plans implementation, writes code,
-                runs tests, and scores engineering quality — all autonomously.
+                DevPilot reviews, explains, debugs and improves your code while adapting to the way you learn and work. Choose a personality, build memory, and get personalized assistance.
               </p>
 
               <div className="flex flex-col sm:flex-row items-start gap-4 animate-slide-up">
@@ -192,20 +191,20 @@ export default function LandingPage() {
         <section className="relative max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-              Not just code generation.
+              Most coding assistants understand the code.
             </h2>
             <p className="text-surface-400 max-w-2xl mx-auto">
-              Code generation is only one step of software engineering. DevPilot connects understanding, implementation, verification, recovery, and evaluation into one workflow.
+              DevPilot understands the developer too. Personality, memory, and code context combine to create assistance that adapts to how you work.
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Traditional Chatbot */}
+            {/* Generic Chatbot */}
             <div className="glass rounded-xl p-6">
               <div className="flex items-center gap-2 mb-6">
                 <MessageSquare className="w-5 h-5 text-surface-400" />
                 <h3 className="text-sm font-semibold text-surface-400 uppercase tracking-wider">
-                  Chatbot
+                  Generic Chatbot
                 </h3>
               </div>
               <div className="space-y-4">
@@ -219,7 +218,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <p className="text-xs text-surface-600 mt-6 border-t border-surface-800/50 pt-4">
-                Prompt → Response → Developer decides what happens next
+                No memory, no personality, no code context
               </p>
             </div>
 
@@ -242,7 +241,7 @@ export default function LandingPage() {
                 ))}
               </div>
               <p className="text-xs text-surface-500 mt-6 border-t border-surface-800/50 pt-4">
-                DevPilot connects the engineering steps instead of stopping at code generation.
+                Code context + Personality + Memory + Agentic execution
               </p>
             </div>
           </div>
